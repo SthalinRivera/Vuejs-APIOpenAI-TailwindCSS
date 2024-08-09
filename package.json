@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "aframe": "^1.6.0",
+    "three": "^0.167.1",
     "vue": "^3.4.29"
   },
   "devDependencies": {

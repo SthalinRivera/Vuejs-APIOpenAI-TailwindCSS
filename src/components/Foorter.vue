@@ -1,43 +1,83 @@
 <template>
- <a-scene embedded arjs='sourceType: webcam;'>
-    <a-marker preset="hiro">
-      <!-- Usamos un proxy CORS para evitar problemas de origen cruzado -->
-      <a-entity
-        position="0 0 0"
-        scale="0.05 0.05 0.05"
-        gltf-model="https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
-      ></a-entity>
-    </a-marker>
-    <a-entity camera></a-entity>
-  </a-scene>
+    <div ref="container" style="width: 100vw; height: 100vh; margin: 0; overflow: hidden;"></div>
   </template>
   
   <script setup>
-    // Puedes agregar lógica aquí si es necesario
+  import { ref, onMounted, onUnmounted } from 'vue';
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+  
+  const container = ref(null);
+  let renderer, scene, camera, controls;
+  
+  onMounted(async () => {
+    await init();
+  });
+  
+  onUnmounted(() => {
+    if (renderer) renderer.dispose();
+    if (controls) controls.dispose();
+  });
+  
+  async function init() {
+    // Create renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setAnimationLoop(animate);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    container.value.appendChild(renderer.domElement);
+  
+    // Create scene
+    scene = new THREE.Scene();
+  
+    // Create camera
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.05, 20);
+    camera.position.set(0.35, 0.05, 0.35);
+  
+    // Add controls
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = -0.5;
+    controls.target.set(0, 0.2, 0);
+    controls.update();
+  
+    // Load environment texture and model
+    const rgbeLoader = new RGBELoader().setPath('/textures/equirectangular/');
+    const gltfLoader = new GLTFLoader().setPath('/textures/equirectangular/');
+  
+    const [texture, gltf] = await Promise.all([
+      rgbeLoader.loadAsync('venice_sunset_1k.hdr'),
+      gltfLoader.loadAsync('IridescenceLamp.glb'),
+    ]);
+  
+    // Setup environment
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    scene.background = texture;
+    scene.environment = texture;
+  
+    // Add model to scene
+    scene.add(gltf.scene);
+  
+    // Handle window resize
+    window.addEventListener('resize', onWindowResize);
+  }
+  
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  
+  function animate() {
+    controls.update(); // Update controls
+    renderer.render(scene, camera);
+  }
   </script>
   
   <style scoped>
-  /* Ajusta el tamaño del canvas para la AR */
-  a-scene {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-  }
-
-  /* Asegúrate de que la cámara esté centrada */
-  a-entity[camera] {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Opcional: estiliza el marcador si es necesario */
-  a-marker {
-    width: 100%;
-    height: 100%;
-  }
-</style>
+  /* Add any specific styles if needed */
+  </style>
+  
