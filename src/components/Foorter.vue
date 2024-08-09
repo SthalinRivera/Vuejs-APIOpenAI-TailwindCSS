@@ -6,7 +6,7 @@
       </a-marker>
       
       <!-- La cámara AR -->
-      <a-entity camera class="h-screen w-full"></a-entity>
+      <a-entity camera ></a-entity>
     </a-scene>
   </template>
   
@@ -15,6 +15,27 @@
   </script>
   
   <style scoped>
-    /* Ajusta el tamaño del canvas para la AR */
- 
-  </style>
+  /* Ajusta el tamaño del canvas para la AR */
+  a-scene {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  /* Asegúrate de que la cámara esté centrada */
+  a-entity[camera] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Opcional: estiliza el marcador si es necesario */
+  a-marker {
+    width: 100%;
+    height: 100%;
+  }
+</style>
