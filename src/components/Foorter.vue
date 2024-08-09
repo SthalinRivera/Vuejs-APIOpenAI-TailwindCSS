@@ -1,13 +1,15 @@
 <template>
-    <a-scene embedded arjs='sourceType: webcam;'>
-      <!-- Definición del marcador -->
-      <a-marker preset="hiro">
-        <a-box position='0 0.5 0' material='color: red;'></a-box>
-      </a-marker>
-      
-      <!-- La cámara AR -->
-      <a-entity camera ></a-entity>
-    </a-scene>
+ <a-scene embedded arjs='sourceType: webcam;'>
+    <a-marker preset="hiro">
+      <!-- Usamos un proxy CORS para evitar problemas de origen cruzado -->
+      <a-entity
+        position="0 0 0"
+        scale="0.05 0.05 0.05"
+        gltf-model="https://raw.githack.com/AR-js-org/AR.js/master/aframe/examples/image-tracking/nft/trex/scene.gltf"
+      ></a-entity>
+    </a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
   </template>
   
   <script setup>
